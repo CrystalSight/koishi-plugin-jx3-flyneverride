@@ -2,6 +2,9 @@
   "name": "koishi-plugin-jx3-flyneverride",
   "description": "Help JX3 players query some information",
   "version": "0.0.1",
+  "contributors": [                         
+    "flyneverride <13645413454@126.com>"
+  ],
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -9,14 +12,16 @@
     "dist"
   ],
   "license": "MIT",
-  "scripts": {},
   "keywords": [
     "chatbot",
     "koishi",
-    "plugin"
+    "plugin",
+    "JX3"
   ],
-  "devDependencies": {},
   "peerDependencies": {
     "koishi": "^4.17.3"
+  },
+  "dependencies": {
+    "axios": "^1.6.8"
   }
 }
