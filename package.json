@@ -1,8 +1,8 @@
 {
   "name": "koishi-plugin-jx3-flyneverride",
   "description": "Help JX3 players query some information",
-  "version": "0.0.1",
-  "contributors": [                         
+  "version": "0.0.3",
+  "contributors": [
     "flyneverride <13645413454@126.com>"
   ],
   "main": "lib/index.js",
