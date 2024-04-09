@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-jx3-flyneverride",
-  "description": "Help JX3 players query some information",
-  "version": "0.0.3",
+  "description": "使用JX3API的机器人，免费接口施工完成，VIP接口缓慢施工(需自行购买权限)",
+  "version": "1.0.1",
   "contributors": [
     "flyneverride <13645413454@126.com>"
   ],
@@ -12,11 +12,17 @@
     "dist"
   ],
   "license": "MIT",
+  "homepage": "https://github.com/CrystalSight/koishi-plugin-jx3-flyneverride.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CrystalSight/koishi-plugin-jx3-flyneverride.git"
+  },
   "keywords": [
     "chatbot",
     "koishi",
     "plugin",
-    "JX3"
+    "JX3",
+    "剑网3"
   ],
   "peerDependencies": {
     "koishi": "^4.17.3"
