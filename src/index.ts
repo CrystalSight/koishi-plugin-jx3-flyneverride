@@ -4,6 +4,7 @@ import axios from 'axios';
 import * as freeFunction from './freeFunction';
 import * as customFunction from './customFunction';
 import * as vipFunction from './vipFunction';
+import * as canvasVipFunction from './canvasVipFunction';
 
 let gameServer:string[]=["绝代天骄","乾坤一掷","幽月轮","斗转星移","梦江南","剑胆琴心","唯我独尊","长安城","龙争虎斗","蝶恋花","青梅煮酒","飞龙在天","破阵子","天鹅坪"];//区服列表
 
@@ -104,6 +105,7 @@ export function apply(ctx: Context, config:Config) {
 
   if (config.enabledVip) {  //如果配置界面开启VIP接口功能，则调用自定义功能vipFunction
     ctx.plugin(vipFunction);
+    ctx.plugin(canvasVipFunction);  //基于canvas的转图片方法；包含指令:[日历]
   }
 
   

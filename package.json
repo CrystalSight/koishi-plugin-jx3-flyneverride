@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-jx3-flyneverride",
-  "description": "使用JX3API的机器人，免费及大部分VIP接口施工完成，短期内不加入VRF功能，以完善新版接口功能为主。",
-  "version": "1.1.1",
+  "description": "使用JX3API的机器人，免费及大部分VIP接口施工完成。临时更新：对于指令<日历>，尝试基于Canvas输出图片，替换原有图片接口。",
+  "version": "1.1.2",
   "contributors": [
     "flyneverride <13645413454@126.com>"
   ],

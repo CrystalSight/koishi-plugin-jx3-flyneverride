@@ -9,7 +9,7 @@ export async function apply(ctx: Context) {
   //START 读取数据库并赋值
   const tokenMarket_= await ctx.database.get('jx3配置', [0], ['tokenMarket'])  //鉴权令牌
   const tokenMarket = tokenMarket_[0].tokenMarket
-  const tokenDaily_= await ctx.database.get('jx3配置', [0], ['tokenDaily']) //是否启用链接服务
+  const tokenDaily_= await ctx.database.get('jx3配置', [0], ['tokenDaily']) //推栏令牌
   const tokenDaily = tokenDaily_[0].tokenDaily
   const defaultServer_= await ctx.database.get('jx3配置', [0], ['defaultServer'])  //默认区服
   const defaultServer = defaultServer_[0].defaultServer
@@ -124,33 +124,33 @@ export async function apply(ctx: Context) {
       }  
     });
 
-    ctx.command('日历', '推演未来活动日历')  //推演未来活动日历（图片）
-    .usage('推演未来活动日历')   
-    .action(async ({ }) => {   
-      try {  
-        const response = await axios.get(getApi.JX3_Calendar_vipAPI_URL,{ 
-          params:{
-            token: tokenMarket,
-            ticket: tokenDaily,
-            scale: 2,  //设置网页分辨率，越高越大
-            num: 15,  //预测时间，目前调整没有区别
-            robot: "https://api.jx3api.com",  //图片底部描述文本
-            cache: 1  //设置缓存，1为开启，0为关闭
-          } 
-        });  
+    // ctx.command('日历', '推演未来活动日历')  //推演未来活动日历（图片）[采用自己的转图片方法，此指令停用保留]
+    // .usage('推演未来活动日历')   
+    // .action(async ({ }) => {   
+    //   try {  
+    //     const response = await axios.get(getApi.JX3_Calendar_vipAPI_URL,{ 
+    //       params:{
+    //         token: tokenMarket,
+    //         ticket: tokenDaily,
+    //         scale: 2,  //设置网页分辨率，越高越大
+    //         num: 15,  //预测时间，目前调整没有区别
+    //         robot: "https://api.jx3api.com",  //图片底部描述文本
+    //         cache: 1  //设置缓存，1为开启，0为关闭
+    //       } 
+    //     });  
     
-        const data: any = response.data;  
-        if (data.code === 200) {  
-          const imageUrl = data.data.url;  
-          return (h('img', { src: imageUrl }));  //输出图片消息元素
-        } else {  
-          return `推演失败，错误代码：${data.code}，信息：${data.msg}`;  
-        }  
-      } catch (error) {  
-        console.error(error);  
-        return '推演活动日历时出错，请稍后再试。';  
-      }  
-    });
+    //     const data: any = response.data;  
+    //     if (data.code === 200) {  
+    //       const imageUrl = data.data.url;  
+    //       return (h('img', { src: imageUrl }));  //输出图片消息元素
+    //     } else {  
+    //       return `推演失败，错误代码：${data.code}，信息：${data.msg}`;  
+    //     }  
+    //   } catch (error) {  
+    //     console.error(error);  
+    //     return '推演活动日历时出错，请稍后再试。';  
+    //   }  
+    // });
 
     ctx.command('奇遇 <name> <server>', '查询指定角色的奇遇触发记录')  //查询指定玩家奇遇
     .usage('查询指定角色的奇遇触发记录，不保证遗漏，例如：奇遇 XX 天鹅坪')
