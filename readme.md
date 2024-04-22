@@ -4,6 +4,7 @@
 
 使用JX3API的机器人，免费接口施工完成，VIP接口缓慢施工(需自行购买权限) <br><br>
 v1.1.2<br>
+※※※Daliy.html是分离出的html文件，包含全部元素绘图逻辑，需传入参数后使用※※※<br>
 指令<日历>:尝试使用原始数据渲染html并输出图片，而非调用现有图片接口；<br>
 当前版本实现方法：通过Canvas绘制背景及文本，使用'koishi-plugin-puppeteer'的render接口渲染并返回；<br>
 v1.1.0<br>
