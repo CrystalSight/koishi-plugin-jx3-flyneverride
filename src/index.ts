@@ -5,8 +5,9 @@ import * as freeFunction from './freeFunction';
 import * as customFunction from './customFunction';
 import * as vipFunction from './vipFunction';
 import * as canvasVipFunction from './canvasVipFunction';
+import { AdventurePlugin } from './AdventurePlugin';
 
-let gameServer:string[]=["绝代天骄","乾坤一掷","幽月轮","斗转星移","梦江南","剑胆琴心","唯我独尊","长安城","龙争虎斗","蝶恋花","青梅煮酒","飞龙在天","破阵子","天鹅坪"];//区服列表
+let gameServer: string[] = ["绝代天骄", "乾坤一掷", "幽月轮", "斗转星移", "梦江南", "剑胆琴心", "唯我独尊", "长安城", "龙争虎斗", "蝶恋花", "青梅煮酒", "飞龙在天", "破阵子", "天鹅坪"];//区服列表
 
 
 export const name = 'jx3-flyneverride'
@@ -18,13 +19,27 @@ declare module 'koishi' {  //数据库新建表"Configuration"
   }
 }
 
-export interface Config {  //配置界面复杂，不会写接口类型，开摆！
-  [x: string]: any;      
+interface Receiver {  //设定推送列表数组内容
+  platform: string
+  guildName: string
+  defaultServerListen: string
+  guildId: string
 }
 
-// 这里是新增表的接口类型
+const Receiver: Schema<Receiver> = Schema.object({  //列表形式数组
+  platform: Schema.string().required().description('平台名称'),
+  guildName: Schema.string().required().description('组群 名称'),
+  defaultServerListen:Schema.string().required().description('默认区服'),
+  guildId: Schema.string().description('群组 ID')
+})
+
+export interface Config {  //配置界面复杂，不会写接口类型，开摆！
+  [x: string]: any;
+}
+
+// 这里是新增数据库表的接口类型
 export interface Schedule {
-  id : number
+  id: number
   defaultServer: string
   linkService: number
   enabledVip: number
@@ -39,11 +54,11 @@ export const Config: Schema<Config> = Schema.intersect([  //配置界面
   //START 通用设定
   Schema.object({
     defaultServer: Schema.union(gameServer).required().description('默认区服'),    //默认区服采用下拉菜单，调用区服数组
-    linkService:Schema.boolean().required().description('是否启用链接服务'),    //是否启用返回值带链接的指令
+    linkService: Schema.boolean().required().description('是否启用链接服务'),    //是否启用返回值带链接的指令
   }).description('通用设定'),
 
   //START VIP接口
-  Schema.object({  
+  Schema.object({
     enabledVip: Schema.boolean().default(false).description('是否启动VIP接口')  //是否启用VIP 接口
   }).description('VIP接口'),
   Schema.union([
@@ -57,20 +72,40 @@ export const Config: Schema<Config> = Schema.intersect([  //配置界面
 
   //START 百战异闻录
   Schema.object({
-    enabledBaizhan:Schema.boolean().required().description('是否启用百战异闻录查询服务'),    //是否启用百战异闻录查询的指令
+    enabledBaizhan: Schema.boolean().required().description('是否启用百战异闻录查询服务'),    //是否启用百战异闻录查询的指令
   }).description('百战异闻录'),
   Schema.union([
     Schema.object({
-      enabledBaizhan:Schema.const(true).required().description('是否启用百战图片服务'),
+      enabledBaizhan: Schema.const(true).required().description('是否启用百战图片服务'),
       urlAPI: Schema.string().required().description('自定义的API接口'),  //提供图片查询服务的自定义接口位置
+    }),
+    Schema.object({}),
+  ]),
+
+  //START 监听推送
+  Schema.object({  
+    enabledListen: Schema.boolean().required().description('是否启用监听推送服务'), //是否启用监听推送服务
+  }).description('监听功能'),
+  Schema.union([
+    Schema.object({
+      enabledListen: Schema.const(true).required(),
+      endPointSatori: Schema.string().required().description('API地址'),
+      tokenSatori: Schema.string().required().description('鉴权令牌'),
+      administratorId: Schema.string().description('管理员ID，将连接状态实时推送至该账号，可自行选择是否启用'),
+      functionList: Schema
+        .array(Schema.union(['开服监控', '新闻资讯', '游戏更新', '贴吧速报', '关隘预告', '云从预告']))
+        .default(['开服监控', '新闻资讯', '游戏更新'])
+        .role('checkbox')
+        .description('选择需要开启的监听功能,最后两个功能后续版本填坑'),
+      rules: Schema.array(Receiver).role('table').description('推送规则列表。')
     }),
     Schema.object({}),
   ]),
 ])
 
 
-export function apply(ctx: Context, config:Config) {
-
+export function apply(ctx: Context, config: Config) {
+  //START 数据库
   ctx.model.extend('jx3配置', {  // 各字段的类型声明
     id: 'unsigned',  //索引
     defaultServer: 'string',  //默认区服
@@ -82,7 +117,7 @@ export function apply(ctx: Context, config:Config) {
     urlAPI: 'string',  //百战查询自定义接口位置
   })
 
-  ctx.database.upsert('jx3配置',(row) => [  //将配置录入数据库
+  ctx.database.upsert('jx3配置', (row) => [  //将配置录入数据库
     {
       id: 0,  //索引
       defaultServer: config.defaultServer,  //默认区服
@@ -95,7 +130,28 @@ export function apply(ctx: Context, config:Config) {
     }
   ])
   //console.log(config.defaultServer);  //测试数据库用
-  
+
+  //START 监听图推送配置项
+
+  let guildId = config.rules.map(rules => {  //新建一个guildId数组，将群号遍历后存入
+    return `${rules.guildId}`; 
+  });
+  let defaultServerListen = config.rules.map(rules => {  //新建一个defaultServerListen数组，将默认区服遍历后存入
+    return `${rules.defaultServerListen}`;   
+  });
+
+  let getInfo = {
+    'endPointSatori':config.endPointSatori+'/v1/message.create',
+    'administratorId':config.administratorId,
+    'tokenSatori':config.tokenSatori,
+    'functionList':config.functionList,
+    'guildId':guildId,
+    'defaultServerListen':defaultServerListen
+  }
+  defaultServerListen.forEach(Element => { 
+    console.log(Element)
+  });
+  console.log(config.enabledListen);
 
   ctx.plugin(freeFunction);  //默认调用免费功能freeFunction
 
@@ -108,6 +164,14 @@ export function apply(ctx: Context, config:Config) {
     ctx.plugin(canvasVipFunction);  //基于canvas的转图片方法；包含指令:[日历]
   }
 
-  
+  if (config.enabledListen) {  //如果配置界面开启监听功能，则调用监听插件AdventurePlugin
+    AdventurePlugin(ctx, getInfo);  
+  } else {  
+    console.log('未开启事件监听功能');  
+  }
+
+
+
+
 }
 
