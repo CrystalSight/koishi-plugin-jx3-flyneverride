@@ -132,9 +132,9 @@ export const AdventurePlugin = (ctx: Context, getInfo: { endPointSatori: string;
     }
 
     if (message.action === 2003 && functionList.includes('游戏更新')) {  //游戏更新
-      const { old_version, new_version, package_num, package_size } = message.data;
+      const { now_version, new_version, package_num, package_size } = message.data;
       let nowDate = getNowDate();
-      let getmessage = `客户端版本已更新！\n旧版本：${old_version}\n新版本：${new_version}\n更新包数量：${package_num}\n更新包大小：${package_size}\n${nowDate}`;
+      let getmessage = `客户端版本已更新！\n旧版本：${now_version}\n新版本：${new_version}\n更新包数量：${package_num}\n更新包大小：${package_size}\n${nowDate}`;
 
       pushFunction(axios, getInfo, getmessage);  //当action2003时，向用户端推送 更新 消息  
 

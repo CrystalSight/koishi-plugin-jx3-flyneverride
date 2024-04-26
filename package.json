@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-jx3-flyneverride",
   "description": "使用JX3API的机器人，免费及大部分VIP接口施工完成。合并入事件监听推送功能",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "contributors": [
     "flyneverride <13645413454@126.com>"
   ],

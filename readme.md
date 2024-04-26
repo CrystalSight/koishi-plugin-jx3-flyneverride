@@ -3,6 +3,8 @@
 [![npm](https://img.shields.io/npm/v/koishi-plugin-jx3-flyneverride?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-jx3-flyneverride)
 
 使用JX3API的机器人，免费接口施工完成，VIP接口缓慢施工(需自行购买权限) <br><br>
+**v1.2.2**<br>
+修复更新推送中无法获取当前版本号的问题。<br>
 **v1.2.0**<br>
 老版接口中4个免费监听推送功能已完成测试，现添加到正式版插件中；针对不同群号可设定不同区服。<br>
 **v1.1.2**<br>
