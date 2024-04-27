@@ -133,25 +133,31 @@ export function apply(ctx: Context, config: Config) {
 
   //START 监听图推送配置项
 
-  let guildId = config.rules.map(rules => {  //新建一个guildId数组，将群号遍历后存入
-    return `${rules.guildId}`; 
-  });
-  let defaultServerListen = config.rules.map(rules => {  //新建一个defaultServerListen数组，将默认区服遍历后存入
-    return `${rules.defaultServerListen}`;   
-  });
+  if (config.enabledListen) {  //如果配置界面开启监听功能，则调用监听插件AdventurePlugin
+    let guildId = config.rules.map(rules => {  //新建一个guildId数组，将群号遍历后存入
+      return `${rules.guildId}`; 
+    });
+    let defaultServerListen = config.rules.map(rules => {  //新建一个defaultServerListen数组，将默认区服遍历后存入
+      return `${rules.defaultServerListen}`;   
+    });
+  
+    let getInfo = {
+      'endPointSatori':config.endPointSatori+'/v1/message.create',
+      'administratorId':config.administratorId,
+      'tokenSatori':config.tokenSatori,
+      'functionList':config.functionList,
+      'guildId':guildId,
+      'defaultServerListen':defaultServerListen
+    }
+    defaultServerListen.forEach(Element => { 
+      console.log(Element)
+    });
+    console.log(config.enabledListen);
 
-  let getInfo = {
-    'endPointSatori':config.endPointSatori+'/v1/message.create',
-    'administratorId':config.administratorId,
-    'tokenSatori':config.tokenSatori,
-    'functionList':config.functionList,
-    'guildId':guildId,
-    'defaultServerListen':defaultServerListen
+    AdventurePlugin(ctx, getInfo);  
+  } else {  
+    console.log('未开启事件监听功能');  
   }
-  defaultServerListen.forEach(Element => { 
-    console.log(Element)
-  });
-  console.log(config.enabledListen);
 
   ctx.plugin(freeFunction);  //默认调用免费功能freeFunction
 
@@ -164,11 +170,7 @@ export function apply(ctx: Context, config: Config) {
     ctx.plugin(canvasVipFunction);  //基于canvas的转图片方法；包含指令:[日历]
   }
 
-  if (config.enabledListen) {  //如果配置界面开启监听功能，则调用监听插件AdventurePlugin
-    AdventurePlugin(ctx, getInfo);  
-  } else {  
-    console.log('未开启事件监听功能');  
-  }
+ 
 
 
 
