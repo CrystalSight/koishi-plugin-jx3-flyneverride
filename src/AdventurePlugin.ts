@@ -98,6 +98,8 @@ export const AdventurePlugin = (ctx: Context, getInfo: { endPointSatori: string;
 
   function handleAdventureMessage(ctx: Context, message: any, getInfo: { endPointSatori: string; administratorId: any; functionList: any, tokenSatori: any; guildId: any; defaultServerListen: any; }) {  //message事件处理函数
     const serverStatus: Record<string, number> = {};  //定义对象存放开服维护信息（开服监控API）
+    const functionList = getInfo.functionList;
+
     if (message.action === 2001) {  //开服监控
       const { server, status } = message.data;
       serverStatus[server] = status;
