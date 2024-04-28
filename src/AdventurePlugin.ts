@@ -3,10 +3,25 @@ import WebSocket from 'ws'
 import axios from 'axios';
 
 
-export function pushAdministFunction(axios, getInfo: { endPointSatori: string; administratorId: any; tokenSatori: any; guildId: any; defaultServerListen: any; }, getmessage) {  //管理员推送事件处理函数
-  const pushurl = getInfo.endPointSatori;
-  const channel_id = 'private:' + getInfo.administratorId;
-  const token = 'Bearer ' + getInfo.tokenSatori;
+export async function pushAdministFunction(axios, ctx: Context, getmessage) {  //管理员推送事件处理函数
+  //START 读取数据库并赋值
+  const endPointSatori_ = await ctx.database.get('jx3推送', [0], ['endPointSatori'])  //Satori接口地址
+  const endPointSatori = endPointSatori_[0].endPointSatori
+  const administratorId_ = await ctx.database.get('jx3推送', [0], ['administratorId'])  //管理员ID，即QQ号
+  const administratorId = administratorId_[0].administratorId
+  const tokenSatori_ = await ctx.database.get('jx3推送', [0], ['tokenSatori'])  //Satori鉴权令牌
+  const tokenSatori = tokenSatori_[0].tokenSatori
+  const functionList_ = await ctx.database.get('jx3推送', [0], ['functionList'])  //功能列表
+  const functionList = functionList_[0].functionList
+  const guildId_ = await ctx.database.get('jx3推送', [0], ['guildId'])  //频道ID，即QQ群号
+  const guildId = guildId_[0].guildId
+  const defaultServerListen_ = await ctx.database.get('jx3推送', [0], ['defaultServerListen'])  //QQ群对应默认区服
+  const defaultServerListen = defaultServerListen_[0].defaultServerListen
+  //END 读取数据库并赋值
+
+  const pushurl = endPointSatori;
+  const channel_id = 'private:' + administratorId;
+  const token = 'Bearer ' + tokenSatori;
 
   let pushmessage = {
     "channel_id": channel_id,
@@ -20,11 +35,25 @@ export function pushAdministFunction(axios, getInfo: { endPointSatori: string; a
   axios.post(pushurl, pushmessage, { headers });
 }
 
-export function pushFunction(axios, getInfo, getmessage) {  //普通推送事件处理函数
-  const pushurl = getInfo.endPointSatori;
-  const token = 'Bearer ' + getInfo.tokenSatori;
+export async function pushFunction(axios, ctx: Context, getmessage) {  //普通推送事件处理函数
+  //START 读取数据库并赋值
+  const endPointSatori_ = await ctx.database.get('jx3推送', [0], ['endPointSatori'])  //Satori接口地址
+  const endPointSatori = endPointSatori_[0].endPointSatori
+  const administratorId_ = await ctx.database.get('jx3推送', [0], ['administratorId'])  //管理员ID，即QQ号
+  const administratorId = administratorId_[0].administratorId
+  const tokenSatori_ = await ctx.database.get('jx3推送', [0], ['tokenSatori'])  //Satori鉴权令牌
+  const tokenSatori = tokenSatori_[0].tokenSatori
+  const functionList_ = await ctx.database.get('jx3推送', [0], ['functionList'])  //功能列表
+  const functionList = functionList_[0].functionList
+  const guildId_ = await ctx.database.get('jx3推送', [0], ['guildId'])  //频道ID，即QQ群号
+  const guildId = guildId_[0].guildId
+  const defaultServerListen_ = await ctx.database.get('jx3推送', [0], ['defaultServerListen'])  //QQ群对应默认区服
+  const defaultServerListen = defaultServerListen_[0].defaultServerListen
+  //END 读取数据库并赋值
+  const pushurl = endPointSatori;
+  const token = 'Bearer ' + tokenSatori;
 
-  getInfo.guildId.forEach((Element: string) => {
+  guildId.forEach((Element: string) => {
     let pushmessage = {
       "channel_id": Element,
       "content": getmessage
@@ -49,17 +78,107 @@ export function getNowDate() {  //获取当前时间
   return nowDate;
 }
 
+export async function handleAdventureMessage(ctx: Context, message: any) {  //message事件处理函数
+  //START 读取数据库并赋值
+  const endPointSatori_ = await ctx.database.get('jx3推送', [0], ['endPointSatori'])  //Satori接口地址
+  const endPointSatori = endPointSatori_[0].endPointSatori
+  const administratorId_ = await ctx.database.get('jx3推送', [0], ['administratorId'])  //管理员ID，即QQ号
+  const administratorId = administratorId_[0].administratorId
+  const tokenSatori_ = await ctx.database.get('jx3推送', [0], ['tokenSatori'])  //Satori鉴权令牌
+  const tokenSatori = tokenSatori_[0].tokenSatori
+  const functionList_ = await ctx.database.get('jx3推送', [0], ['functionList'])  //功能列表
+  const functionList = functionList_[0].functionList
+  const guildId_ = await ctx.database.get('jx3推送', [0], ['guildId'])  //频道ID，即QQ群号
+  const guildId = guildId_[0].guildId
+  const defaultServerListen_ = await ctx.database.get('jx3推送', [0], ['defaultServerListen'])  //QQ群对应默认区服
+  const defaultServerListen = defaultServerListen_[0].defaultServerListen
+  //END 读取数据库并赋值
 
 
-export const AdventurePlugin = (ctx: Context, getInfo: { endPointSatori: string; administratorId: any; tokenSatori: any; functionList: any; guildId: any; defaultServerListen: any; }) => {  //监听函数 
+  if (message.action === 2001) {  //开服监控
+    const { server, status } = message.data;
+    let nowDate = getNowDate();
+    let getmessage = `服务器 ${server} 的状态已更新为 ${status ? '开服' : '维护'}\n${nowDate}`;
+
+    const pushurl = endPointSatori;
+    const token = 'Bearer ' + tokenSatori;
+    if (functionList.includes('开服监控')) {
+      guildId.forEach((Element: string, index) => {
+        let pushmessage = {
+          "channel_id": Element,
+          "content": getmessage
+        };
+
+        const headers = {
+          'Content-Type': 'application/json',
+          'Authorization': token
+        };
+
+        if (defaultServerListen[index] === server) {
+          axios.post(pushurl, pushmessage, { headers })
+        }
+      });
+    }
+  }
+
+  if (message.action === 2002) {  //新闻资讯
+    const { type, title, url, date } = message.data;
+    let getmessage = `新闻资讯：${title}\n详情链接：${url}\n发布日期：${date}`;
+    if (functionList.includes('新闻资讯')) {
+      pushFunction(axios, ctx, getmessage);  //当action2002时，向用户端推送 新闻资讯 消息 
+    }
+
+
+  }
+
+  if (message.action === 2003) {  //游戏更新
+    const { now_version, new_version, package_num, package_size } = message.data;
+    let nowDate = getNowDate();
+    let getmessage = `客户端版本已更新！\n旧版本：${now_version}\n新版本：${new_version}\n更新包数量：${package_num}\n更新包大小：${package_size}\n${nowDate}`;
+    if (functionList.includes('游戏更新')) {
+      pushFunction(axios, ctx, getmessage);  //当action2003时，向用户端推送 更新 消息
+    }
+
+
+  }
+
+  if (message.action === 2004) {  //八卦速报
+    const { subclass, server, name, title, url, date } = message.data;
+    let getmessage = `百度贴吧818速报：\n子类：${subclass}\n服务器：${server}\n版块：${name}\n标题：${title}\n链接：${url}\n日期：${date}`;
+    if (functionList.includes('贴吧速报')) {
+      pushFunction(axios, ctx, getmessage);  //当action2004时，向用户端推送 818 消息  
+    }
+  }
+}
+
+
+
+export const AdventurePlugin = async (ctx: Context) => {  //监听函数 
+  //START 读取数据库并赋值
+  const endPointSatori_ = await ctx.database.get('jx3推送', [0], ['endPointSatori'])  //Satori接口地址
+  const endPointSatori = endPointSatori_[0].endPointSatori
+  const administratorId_ = await ctx.database.get('jx3推送', [0], ['administratorId'])  //管理员ID，即QQ号
+  const administratorId = administratorId_[0].administratorId
+  const tokenSatori_ = await ctx.database.get('jx3推送', [0], ['tokenSatori'])  //Satori鉴权令牌
+  const tokenSatori = tokenSatori_[0].tokenSatori
+  const functionList_ = await ctx.database.get('jx3推送', [0], ['functionList'])  //功能列表
+  const functionList = functionList_[0].functionList
+  const guildId_ = await ctx.database.get('jx3推送', [0], ['guildId'])  //频道ID，即QQ群号
+  const guildId = guildId_[0].guildId
+  const defaultServerListen_ = await ctx.database.get('jx3推送', [0], ['defaultServerListen'])  //QQ群对应默认区服
+  const defaultServerListen = defaultServerListen_[0].defaultServerListen
+  const enabledListen_ = await ctx.database.get('jx3推送', [0], ['enabledListen'])  //是否启用推送功能
+  const enabledListen = enabledListen_[0].enabledListen
+  //END 读取数据库并赋值
+
   // WebSocket连接配置
   const wsUrl = 'wss://socket.nicemoe.cn';
   const ws = new WebSocket(wsUrl);
-  const functionList = getInfo.functionList;
-  //console.log(functionList);
 
+  ws.on('open', async () => {  //连接成功
+    const enabledListen_ = await ctx.database.get('jx3推送', [0], ['enabledListen'])  //是否启用推送功能
+    const enabledListen = enabledListen_[0].enabledListen
 
-  ws.on('open', () => {  //连接成功
     let nowDate = getNowDate();
     console.log('WebSocket connection');
     let getmessage = `连接成功 \n` +
@@ -70,21 +189,34 @@ export const AdventurePlugin = (ctx: Context, getInfo: { endPointSatori: string;
       `关隘预告：${functionList.includes('关隘预告')}\n` +
       `云从预告：${functionList.includes('云从预告')}\n` +
       `${nowDate}`;
-    pushAdministFunction(axios, getInfo, getmessage);  //当连接成功时调用（向管理员账户发送信息）
-    pushFunction(axios, getInfo, "1");
+    if (enabledListen) {
+      pushAdministFunction(axios, ctx, getmessage);  //当连接成功时调用（向管理员账户发送信息）
+    } else {
+      ws.close();
+    }
+
   });
 
-  ws.on('message', (data) => {
+  ws.on('message', async (data) => {
+    const enabledListen_ = await ctx.database.get('jx3推送', [0], ['enabledListen'])  //是否启用推送功能
+    const enabledListen = enabledListen_[0].enabledListen
+
     const message = JSON.parse(data.toString());
-    handleAdventureMessage(ctx, message, getInfo);
+
+    if (enabledListen) {
+      handleAdventureMessage(ctx, message);
+    } else {
+      ws.close();
+    }
+
   });
 
   ws.on('close', () => {  //断开连接
     let nowDate = getNowDate();
     console.log('WebSocket connection closed');
     let getmessage = `连接断开 \n${nowDate}`;
-    pushAdministFunction(axios, getInfo, getmessage);  //当断开连接时调用（向管理员账户发送信息）
-    setTimeout(pushAdministFunction, 5000);     //处理重连逻辑，如果需要的话 
+    pushAdministFunction(axios, ctx, getmessage);  //当断开连接时调用（向管理员账户发送信息）
+    //setTimeout(pushAdministFunction, 5000);     //处理重连逻辑，如果需要的话 
 
   });
 
@@ -92,72 +224,10 @@ export const AdventurePlugin = (ctx: Context, getInfo: { endPointSatori: string;
     let nowDate = getNowDate();
     console.error('WebSocket error:', error);
     let getmessage = `连接错误 \n${nowDate}`;
-    pushAdministFunction(axios, getInfo, getmessage);  //当连接错误时调用（向管理员账户发送信息） 
+    pushAdministFunction(axios, ctx, getmessage);  //当连接错误时调用（向管理员账户发送信息） 
     // 处理错误逻辑  
   });
 
-  function handleAdventureMessage(ctx: Context, message: any, getInfo: { endPointSatori: string; administratorId: any; functionList: any, tokenSatori: any; guildId: any; defaultServerListen: any; }) {  //message事件处理函数
-    const serverStatus: Record<string, number> = {};  //定义对象存放开服维护信息（开服监控API）
-    const functionList = getInfo.functionList;
-
-    if (message.action === 2001) {  //开服监控
-      const { server, status } = message.data;
-      serverStatus[server] = status;
-      let nowDate = getNowDate();
-      let getmessage = `服务器 ${server} 的状态已更新为 ${status ? '开服' : '维护'}\n${nowDate}`;
-
-      const pushurl = getInfo.endPointSatori;
-      const token = 'Bearer ' + getInfo.tokenSatori;
-      if (functionList.includes('开服监控')) {
-        getInfo.guildId.forEach((Element: string, index) => {
-          let pushmessage = {
-            "channel_id": Element,
-            "content": getmessage
-          };
-
-          const headers = {
-            'Content-Type': 'application/json',
-            'Authorization': token
-          };
-
-          if (getInfo.defaultServerListen[index] === server) {
-            axios.post(pushurl, pushmessage, { headers })
-          }
-        });
-      }
-    }
-
-    if (message.action === 2002) {  //新闻资讯
-      const { type, title, url, date } = message.data;
-      let getmessage = `新闻资讯：${title}\n详情链接：${url}\n发布日期：${date}`;
-      if (functionList.includes('新闻资讯')) {
-        pushFunction(axios, getInfo, getmessage);  //当action2002时，向用户端推送 新闻资讯 消息 
-      }
-
-
-    }
-
-    if (message.action === 2003) {  //游戏更新
-      const { now_version, new_version, package_num, package_size } = message.data;
-      let nowDate = getNowDate();
-      let getmessage = `客户端版本已更新！\n旧版本：${now_version}\n新版本：${new_version}\n更新包数量：${package_num}\n更新包大小：${package_size}\n${nowDate}`;
-      if (functionList.includes('游戏更新')) {
-        pushFunction(axios, getInfo, getmessage);  //当action2003时，向用户端推送 更新 消息
-      }
-
-
-    }
-
-    if (message.action === 2004) {  //八卦速报
-      const { subclass, server, name, title, url, date } = message.data;
-      let getmessage = `百度贴吧818速报：\n子类：${subclass}\n服务器：${server}\n版块：${name}\n标题：${title}\n链接：${url}\n日期：${date}`;
-      if (functionList.includes('贴吧速报')) {
-        pushFunction(axios, getInfo, getmessage);  //当action2004时，向用户端推送 818 消息  
-      }
-    }
-  }
-
-  // 可以在此添加其他Koishi事件处理逻辑 
 
 }
 

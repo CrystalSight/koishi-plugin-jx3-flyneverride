@@ -5,7 +5,7 @@ import * as freeFunction from './freeFunction';
 import * as customFunction from './customFunction';
 import * as vipFunction from './vipFunction';
 import * as canvasVipFunction from './canvasVipFunction';
-import { AdventurePlugin } from './AdventurePlugin';
+import { AdventurePlugin, getNowDate } from './AdventurePlugin';
 
 let gameServer: string[] = ["绝代天骄", "乾坤一掷", "幽月轮", "斗转星移", "梦江南", "剑胆琴心", "唯我独尊", "长安城", "龙争虎斗", "蝶恋花", "青梅煮酒", "飞龙在天", "破阵子", "天鹅坪"];//区服列表
 
@@ -15,7 +15,8 @@ export const usage = '该插件可获取剑三部分信息'
 
 declare module 'koishi' {  //数据库新建表"Configuration"
   interface Tables {
-    jx3配置: Schedule
+    jx3配置: ScheduleJX3Config
+    jx3推送: ScheduleJX3Listen
   }
 }
 
@@ -29,7 +30,7 @@ interface Receiver {  //设定推送列表数组内容
 const Receiver: Schema<Receiver> = Schema.object({  //列表形式数组
   platform: Schema.string().required().description('平台名称'),
   guildName: Schema.string().required().description('组群 名称'),
-  defaultServerListen:Schema.string().required().description('默认区服'),
+  defaultServerListen: Schema.string().required().description('默认区服'),
   guildId: Schema.string().description('群组 ID')
 })
 
@@ -38,7 +39,7 @@ export interface Config {  //配置界面复杂，不会写接口类型，开摆
 }
 
 // 这里是新增数据库表的接口类型
-export interface Schedule {
+export interface ScheduleJX3Config {  //JX3配置
   id: number
   defaultServer: string
   linkService: number
@@ -47,6 +48,16 @@ export interface Schedule {
   tokenDaily: string
   enabledBaizhan: number
   urlAPI: string
+}
+export interface ScheduleJX3Listen {  //JX3推送
+  id: number
+  endPointSatori: string
+  administratorId: string
+  tokenSatori: string
+  functionList: string[]
+  guildId: string[]
+  defaultServerListen: string[]
+  enabledListen: number
 }
 
 
@@ -83,7 +94,7 @@ export const Config: Schema<Config> = Schema.intersect([  //配置界面
   ]),
 
   //START 监听推送
-  Schema.object({  
+  Schema.object({
     enabledListen: Schema.boolean().required().description('是否启用监听推送服务'), //是否启用监听推送服务
   }).description('监听功能'),
   Schema.union([
@@ -105,7 +116,7 @@ export const Config: Schema<Config> = Schema.intersect([  //配置界面
 
 
 export function apply(ctx: Context, config: Config) {
-  //START 数据库
+  //START 数据库JX3配置
   ctx.model.extend('jx3配置', {  // 各字段的类型声明
     id: 'unsigned',  //索引
     defaultServer: 'string',  //默认区服
@@ -129,35 +140,44 @@ export function apply(ctx: Context, config: Config) {
       urlAPI: config.urlAPI,  //百战查询自定义接口位置
     }
   ])
-  //console.log(config.defaultServer);  //测试数据库用
+
+  //START 数据库JX3推送
+  ctx.model.extend('jx3推送', {  // 各字段的类型声明
+    id: 'unsigned',  //索引
+    endPointSatori: 'string',  //Satori接口地址
+    administratorId: 'string',  //管理员ID，即QQ号
+    tokenSatori: 'string',  //Satori鉴权令牌
+    functionList: 'list',  //功能列表
+    guildId: 'list',  //频道ID，即QQ群号
+    defaultServerListen: 'list',  //QQ群对应默认区服
+    enabledListen: 'unsigned',  //是否启用推送功能
+  })
+
+  let guildId = config.rules.map(rules => {  //新建一个guildId数组，将群号遍历后存入
+    return `${rules.guildId}`;
+  });
+  let defaultServerListen = config.rules.map(rules => {  //新建一个defaultServerListen数组，将默认区服遍历后存入
+    return `${rules.defaultServerListen}`;
+  });
+  ctx.database.upsert('jx3推送', (row) => [  //将配置录入数据库
+    {
+      id: 0,  //索引
+      endPointSatori: config.endPointSatori + '/v1/message.create',  //Satori接口地址
+      administratorId: config.administratorId,  //管理员ID，即QQ号
+      tokenSatori: config.tokenSatori,  //Satori鉴权令牌
+      functionList: config.functionList,  //功能列表
+      guildId: guildId,  //频道ID，即QQ群号
+      defaultServerListen: defaultServerListen,  //QQ群对应默认区服
+      enabledListen: config.enabledListen,  //是否启用推送功能
+    }
+  ])
+
 
   //START 监听图推送配置项
 
-  if (config.enabledListen) {  //如果配置界面开启监听功能，则调用监听插件AdventurePlugin
-    let guildId = config.rules.map(rules => {  //新建一个guildId数组，将群号遍历后存入
-      return `${rules.guildId}`; 
-    });
-    let defaultServerListen = config.rules.map(rules => {  //新建一个defaultServerListen数组，将默认区服遍历后存入
-      return `${rules.defaultServerListen}`;   
-    });
-  
-    let getInfo = {
-      'endPointSatori':config.endPointSatori+'/v1/message.create',
-      'administratorId':config.administratorId,
-      'tokenSatori':config.tokenSatori,
-      'functionList':config.functionList,
-      'guildId':guildId,
-      'defaultServerListen':defaultServerListen
-    }
-    defaultServerListen.forEach(Element => { 
-      console.log(Element)
-    });
-    console.log(config.enabledListen);
 
-    AdventurePlugin(ctx, getInfo);  
-  } else {  
-    console.log('未开启事件监听功能');  
-  }
+  AdventurePlugin(ctx);  //如果配置界面开启监听功能，则调用监听插件AdventurePlugin
+  
 
   ctx.plugin(freeFunction);  //默认调用免费功能freeFunction
 
@@ -170,7 +190,7 @@ export function apply(ctx: Context, config: Config) {
     ctx.plugin(canvasVipFunction);  //基于canvas的转图片方法；包含指令:[日历]
   }
 
- 
+
 
 
 

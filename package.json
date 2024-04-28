@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-jx3-flyneverride",
   "description": "使用JX3API的机器人，免费及大部分VIP接口施工完成。监听推送功能有重复推送等问题，修复之前谨慎使用本插件",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "contributors": [
     "flyneverride <13645413454@126.com>"
   ],
@@ -25,7 +25,7 @@
     "剑网3"
   ],
   "peerDependencies": {
-    "koishi": "^4.17.4"
+    "koishi": "^4.17.5"
   },
   "dependencies": {
     "axios": "^1.6.8"
