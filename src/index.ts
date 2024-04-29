@@ -5,7 +5,7 @@ import * as freeFunction from './freeFunction';
 import * as customFunction from './customFunction';
 import * as vipFunction from './vipFunction';
 import * as canvasVipFunction from './canvasVipFunction';
-import { AdventurePlugin, getNowDate } from './AdventurePlugin';
+import { transferAdventurePlugin, getNowDate } from './AdventurePlugin';
 
 let gameServer: string[] = ["绝代天骄", "乾坤一掷", "幽月轮", "斗转星移", "梦江南", "剑胆琴心", "唯我独尊", "长安城", "龙争虎斗", "蝶恋花", "青梅煮酒", "飞龙在天", "破阵子", "天鹅坪"];//区服列表
 
@@ -176,8 +176,8 @@ export function apply(ctx: Context, config: Config) {
   //START 监听图推送配置项
 
 
-  AdventurePlugin(ctx);  //如果配置界面开启监听功能，则调用监听插件AdventurePlugin
-  
+
+  transferAdventurePlugin(ctx);  //调用监听中转插件AdventurePlugin
 
   ctx.plugin(freeFunction);  //默认调用免费功能freeFunction
 

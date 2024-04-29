@@ -1,6 +1,9 @@
 import { Context } from 'koishi'
 import WebSocket from 'ws'
 import axios from 'axios';
+import * as getApi from './api'; //导入剑网三API地址，name:getApi
+
+let existingConnection: WebSocket | null = null; //全局控制WS连接
 
 
 export async function pushAdministFunction(axios, ctx: Context, getmessage) {  //管理员推送事件处理函数
@@ -11,12 +14,12 @@ export async function pushAdministFunction(axios, ctx: Context, getmessage) {  /
   const administratorId = administratorId_[0].administratorId
   const tokenSatori_ = await ctx.database.get('jx3推送', [0], ['tokenSatori'])  //Satori鉴权令牌
   const tokenSatori = tokenSatori_[0].tokenSatori
-  const functionList_ = await ctx.database.get('jx3推送', [0], ['functionList'])  //功能列表
-  const functionList = functionList_[0].functionList
-  const guildId_ = await ctx.database.get('jx3推送', [0], ['guildId'])  //频道ID，即QQ群号
-  const guildId = guildId_[0].guildId
-  const defaultServerListen_ = await ctx.database.get('jx3推送', [0], ['defaultServerListen'])  //QQ群对应默认区服
-  const defaultServerListen = defaultServerListen_[0].defaultServerListen
+  // const functionList_ = await ctx.database.get('jx3推送', [0], ['functionList'])  //功能列表
+  // const functionList = functionList_[0].functionList
+  // const guildId_ = await ctx.database.get('jx3推送', [0], ['guildId'])  //频道ID，即QQ群号
+  // const guildId = guildId_[0].guildId
+  // const defaultServerListen_ = await ctx.database.get('jx3推送', [0], ['defaultServerListen'])  //QQ群对应默认区服
+  // const defaultServerListen = defaultServerListen_[0].defaultServerListen
   //END 读取数据库并赋值
 
   const pushurl = endPointSatori;
@@ -39,16 +42,16 @@ export async function pushFunction(axios, ctx: Context, getmessage) {  //普通�
   //START 读取数据库并赋值
   const endPointSatori_ = await ctx.database.get('jx3推送', [0], ['endPointSatori'])  //Satori接口地址
   const endPointSatori = endPointSatori_[0].endPointSatori
-  const administratorId_ = await ctx.database.get('jx3推送', [0], ['administratorId'])  //管理员ID，即QQ号
-  const administratorId = administratorId_[0].administratorId
+  // const administratorId_ = await ctx.database.get('jx3推送', [0], ['administratorId'])  //管理员ID，即QQ号
+  // const administratorId = administratorId_[0].administratorId
   const tokenSatori_ = await ctx.database.get('jx3推送', [0], ['tokenSatori'])  //Satori鉴权令牌
   const tokenSatori = tokenSatori_[0].tokenSatori
-  const functionList_ = await ctx.database.get('jx3推送', [0], ['functionList'])  //功能列表
-  const functionList = functionList_[0].functionList
+  // const functionList_ = await ctx.database.get('jx3推送', [0], ['functionList'])  //功能列表
+  // const functionList = functionList_[0].functionList
   const guildId_ = await ctx.database.get('jx3推送', [0], ['guildId'])  //频道ID，即QQ群号
   const guildId = guildId_[0].guildId
-  const defaultServerListen_ = await ctx.database.get('jx3推送', [0], ['defaultServerListen'])  //QQ群对应默认区服
-  const defaultServerListen = defaultServerListen_[0].defaultServerListen
+  // const defaultServerListen_ = await ctx.database.get('jx3推送', [0], ['defaultServerListen'])  //QQ群对应默认区服
+  // const defaultServerListen = defaultServerListen_[0].defaultServerListen
   //END 读取数据库并赋值
   const pushurl = endPointSatori;
   const token = 'Bearer ' + tokenSatori;
@@ -82,8 +85,8 @@ export async function handleAdventureMessage(ctx: Context, message: any) {  //me
   //START 读取数据库并赋值
   const endPointSatori_ = await ctx.database.get('jx3推送', [0], ['endPointSatori'])  //Satori接口地址
   const endPointSatori = endPointSatori_[0].endPointSatori
-  const administratorId_ = await ctx.database.get('jx3推送', [0], ['administratorId'])  //管理员ID，即QQ号
-  const administratorId = administratorId_[0].administratorId
+  // const administratorId_ = await ctx.database.get('jx3推送', [0], ['administratorId'])  //管理员ID，即QQ号
+  // const administratorId = administratorId_[0].administratorId
   const tokenSatori_ = await ctx.database.get('jx3推送', [0], ['tokenSatori'])  //Satori鉴权令牌
   const tokenSatori = tokenSatori_[0].tokenSatori
   const functionList_ = await ctx.database.get('jx3推送', [0], ['functionList'])  //功能列表
@@ -151,28 +154,40 @@ export async function handleAdventureMessage(ctx: Context, message: any) {  //me
   }
 }
 
+export async function transferAdventurePlugin(ctx: Context) {  //封装监听函数中转，控制断开
+  if (existingConnection) {
+    existingConnection.close(); // 关闭现有的连接 
+    existingConnection = null;
+  }
 
+  try {
+    existingConnection = await AdventurePlugin(ctx); // 创建新的连接并保存引用 
+  } catch (error) {
+    console.error('Failed to create WebSocket connection:', error);
+  }
 
-export const AdventurePlugin = async (ctx: Context) => {  //监听函数 
+}
+
+export const AdventurePlugin = async (ctx: Context): Promise<WebSocket> => {  //监听函数 
   //START 读取数据库并赋值
-  const endPointSatori_ = await ctx.database.get('jx3推送', [0], ['endPointSatori'])  //Satori接口地址
-  const endPointSatori = endPointSatori_[0].endPointSatori
-  const administratorId_ = await ctx.database.get('jx3推送', [0], ['administratorId'])  //管理员ID，即QQ号
-  const administratorId = administratorId_[0].administratorId
-  const tokenSatori_ = await ctx.database.get('jx3推送', [0], ['tokenSatori'])  //Satori鉴权令牌
-  const tokenSatori = tokenSatori_[0].tokenSatori
+  // const endPointSatori_ = await ctx.database.get('jx3推送', [0], ['endPointSatori'])  //Satori接口地址
+  // const endPointSatori = endPointSatori_[0].endPointSatori
+  // const administratorId_ = await ctx.database.get('jx3推送', [0], ['administratorId'])  //管理员ID，即QQ号
+  // const administratorId = administratorId_[0].administratorId
+  // const tokenSatori_ = await ctx.database.get('jx3推送', [0], ['tokenSatori'])  //Satori鉴权令牌
+  // const tokenSatori = tokenSatori_[0].tokenSatori
   const functionList_ = await ctx.database.get('jx3推送', [0], ['functionList'])  //功能列表
   const functionList = functionList_[0].functionList
-  const guildId_ = await ctx.database.get('jx3推送', [0], ['guildId'])  //频道ID，即QQ群号
-  const guildId = guildId_[0].guildId
-  const defaultServerListen_ = await ctx.database.get('jx3推送', [0], ['defaultServerListen'])  //QQ群对应默认区服
-  const defaultServerListen = defaultServerListen_[0].defaultServerListen
-  const enabledListen_ = await ctx.database.get('jx3推送', [0], ['enabledListen'])  //是否启用推送功能
-  const enabledListen = enabledListen_[0].enabledListen
+  // const guildId_ = await ctx.database.get('jx3推送', [0], ['guildId'])  //频道ID，即QQ群号
+  // const guildId = guildId_[0].guildId
+  // const defaultServerListen_ = await ctx.database.get('jx3推送', [0], ['defaultServerListen'])  //QQ群对应默认区服
+  // const defaultServerListen = defaultServerListen_[0].defaultServerListen
+  // const enabledListen_ = await ctx.database.get('jx3推送', [0], ['enabledListen'])  //是否启用推送功能
+  // const enabledListen = enabledListen_[0].enabledListen
   //END 读取数据库并赋值
 
   // WebSocket连接配置
-  const wsUrl = 'wss://socket.nicemoe.cn';
+  const wsUrl = getApi.JX3_webSocket_URL;
   const ws = new WebSocket(wsUrl);
 
   ws.on('open', async () => {  //连接成功
@@ -227,6 +242,8 @@ export const AdventurePlugin = async (ctx: Context) => {  //监听函数
     pushAdministFunction(axios, ctx, getmessage);  //当连接错误时调用（向管理员账户发送信息） 
     // 处理错误逻辑  
   });
+
+  return ws;
 
 
 }

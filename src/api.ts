@@ -50,6 +50,9 @@ export const JX3_soundConverter_vrfAPI_URL = 'https://api.jx3api.com/data/sound/
 export const JX3_musicTencent_vrfAPI_URL = 'https://api.jx3api.com/data/music/tencent';//剑三腾讯音乐API
 export const JX3_musicNetease_vrfAPI_URL = 'https://api.jx3api.com/data/music/netease';//剑三网易音乐API
 
+//剑网三 Websocket
+export const JX3_webSocket_URL = 'wss://socket.nicemoe.cn';//剑三Websocket
+
 //let gameServer:string[]=["绝代天骄","乾坤一掷","幽月轮","斗转星移","梦江南","剑胆琴心","唯我独尊","长安城","龙争虎斗","蝶恋花","青梅煮酒","飞龙在天","破阵子","天鹅坪"];//区服列表
 
 
