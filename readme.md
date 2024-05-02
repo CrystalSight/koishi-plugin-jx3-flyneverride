@@ -2,7 +2,9 @@
 
 [![npm](https://img.shields.io/npm/v/koishi-plugin-jx3-flyneverride?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-jx3-flyneverride)
 
-使用JX3API的机器人，免费接口施工完成，VIP接口缓慢施工(需自行购买权限) <br><br>
+使用JX3API的机器人，免费及大部分VIP接口施工完成(VIP需自行购买权限) <br><br>
+**v1.3.0**<br>
+经小范围测试，推送能已修复，后期再有问题再改<br>
 **v1.2.2**<br>
 修复更新推送中无法获取当前版本号的问题。<br>
 **v1.2.0**<br>
