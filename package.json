@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-jx3-flyneverride",
-  "description": "使用JX3API的机器人。经小范围测试推送功能已修复，部分功能重写推荐卸载原有插件重新安装最新版本",
-  "version": "1.3.0",
+  "description": "使用JX3API的机器人，详情见主页。经小范围测试推送功能已修复，部分功能重写推荐卸载原有插件重新安装最新版本",
+  "version": "1.3.1",
   "contributors": [
     "flyneverride <13645413454@126.com>"
   ],

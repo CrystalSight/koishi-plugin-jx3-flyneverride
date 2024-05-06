@@ -5,6 +5,22 @@ import * as getApi from './api'; //导入剑网三API地址，name:getApi
 
 let existingConnection: WebSocket | null = null; //全局控制WS连接
 
+export async function getSaoHua() {  //获取“剑三随机数”
+  try {
+    const response = await axios.get(getApi.JX3_Saohua_API_URL);
+
+    if (response.data.code === 200) {
+      return response.data.data.text;
+    } else {
+      return '无法获取骚话。';
+    }
+
+  } catch (error) {
+    console.error(error);
+    return '发生错误，请稍后再试。';
+  }
+}
+
 
 export async function pushAdministFunction(axios, ctx: Context, getmessage) {  //管理员推送事件处理函数
   //START 读取数据库并赋值
@@ -28,7 +44,7 @@ export async function pushAdministFunction(axios, ctx: Context, getmessage) {  /
 
   let pushmessage = {
     "channel_id": channel_id,
-    "content": getmessage
+    "content": `${getmessage}\n\n${await getSaoHua()}`
   };
 
   const headers = {
@@ -56,10 +72,10 @@ export async function pushFunction(axios, ctx: Context, getmessage) {  //普通�
   const pushurl = endPointSatori;
   const token = 'Bearer ' + tokenSatori;
 
-  guildId.forEach((Element: string) => {
+  guildId.forEach(async (Element: string) => {
     let pushmessage = {
       "channel_id": Element,
-      "content": getmessage
+      "content": `${getmessage}\n\n${await getSaoHua()}`
     };
 
     const headers = {
@@ -106,10 +122,10 @@ export async function handleAdventureMessage(ctx: Context, message: any) {  //me
     const pushurl = endPointSatori;
     const token = 'Bearer ' + tokenSatori;
     if (functionList.includes('开服监控')) {
-      guildId.forEach((Element: string, index) => {
+      guildId.forEach(async (Element: string, index) => {
         let pushmessage = {
           "channel_id": Element,
-          "content": getmessage
+          "content": `${getmessage}\n\n${await getSaoHua()}`
         };
 
         const headers = {
@@ -230,9 +246,8 @@ export const AdventurePlugin = async (ctx: Context): Promise<WebSocket> => {  //
     let nowDate = getNowDate();
     console.log('WebSocket connection closed');
     let getmessage = `连接断开 \n${nowDate}`;
-    pushAdministFunction(axios, ctx, getmessage);  //当断开连接时调用（向管理员账户发送信息）
-    //setTimeout(pushAdministFunction, 5000);     //处理重连逻辑，如果需要的话 
-
+    pushAdministFunction(axios, ctx, getmessage);
+    //setTimeout(transferAdventurePlugin, 5000);     //处理重连逻辑，如果需要的话
   });
 
   ws.on('error', (error) => {  //连接错误

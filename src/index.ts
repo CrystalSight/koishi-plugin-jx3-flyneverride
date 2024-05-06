@@ -13,6 +13,10 @@ let gameServer: string[] = ["绝代天骄", "乾坤一掷", "幽月轮", "斗转
 export const name = 'jx3-flyneverride'
 export const usage = '该插件可获取剑三部分信息'
 
+export const inject = {
+  required: ['database']
+}
+
 declare module 'koishi' {  //数据库新建表"Configuration"
   interface Tables {
     jx3配置: ScheduleJX3Config
