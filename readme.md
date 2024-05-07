@@ -2,7 +2,11 @@
 
 [![npm](https://img.shields.io/npm/v/koishi-plugin-jx3-flyneverride?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-jx3-flyneverride)
 
-使用JX3API的机器人，免费及大部分VIP接口施工完成(VIP需自行购买权限) <br><br>
+使用JX3API及魔盒的机器人，免费及大部分VIP接口施工完成(VIP需自行购买权限) <br>
+JX3API : https://api.jx3api.com<br>
+魔盒 : https://www.jx3box.com<br><br>
+**v1.3.2**<br>
+重写百战指令，现在可以直接从魔盒获取百战地图啦，无需自行额外配置<br>
 **v1.3.1**<br>
 规范ctx.database数据库功能依赖声明<br>
 为推送消息加入随机元素，大批量推送更安全<br>

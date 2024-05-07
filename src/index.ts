@@ -1,11 +1,10 @@
-import { Context, Schema, h, } from 'koishi'
-import axios from 'axios';
+import { Context, Schema,} from 'koishi'
 // import * as getApi from './api'; //导入剑网三API地址，name:getApi
 import * as freeFunction from './freeFunction';
-import * as customFunction from './customFunction';
+import * as jx3boxFunction from './jx3boxFunction';
 import * as vipFunction from './vipFunction';
 import * as canvasVipFunction from './canvasVipFunction';
-import { transferAdventurePlugin, getNowDate } from './AdventurePlugin';
+import { transferAdventurePlugin } from './AdventurePlugin';
 
 let gameServer: string[] = ["绝代天骄", "乾坤一掷", "幽月轮", "斗转星移", "梦江南", "剑胆琴心", "唯我独尊", "长安城", "龙争虎斗", "蝶恋花", "青梅煮酒", "飞龙在天", "破阵子", "天鹅坪"];//区服列表
 
@@ -14,7 +13,7 @@ export const name = 'jx3-flyneverride'
 export const usage = '该插件可获取剑三部分信息'
 
 export const inject = {
-  required: ['database']
+  required: ['database', 'puppeteer']
 }
 
 declare module 'koishi' {  //数据库新建表"Configuration"
@@ -50,8 +49,6 @@ export interface ScheduleJX3Config {  //JX3配置
   enabledVip: number
   tokenMarket: string
   tokenDaily: string
-  enabledBaizhan: number
-  urlAPI: string
 }
 export interface ScheduleJX3Listen {  //JX3推送
   id: number
@@ -81,18 +78,6 @@ export const Config: Schema<Config> = Schema.intersect([  //配置界面
       enabledVip: Schema.const(true).required().description('是否启动VIP接口'),
       tokenMarket: Schema.string().required().description('API鉴权token'),  //商城购买的token
       tokenDaily: Schema.string().required().description('推栏身份识别token'),  //推栏身份识别token
-    }),
-    Schema.object({}),
-  ]),
-
-  //START 百战异闻录
-  Schema.object({
-    enabledBaizhan: Schema.boolean().required().description('是否启用百战异闻录查询服务'),    //是否启用百战异闻录查询的指令
-  }).description('百战异闻录'),
-  Schema.union([
-    Schema.object({
-      enabledBaizhan: Schema.const(true).required().description('是否启用百战图片服务'),
-      urlAPI: Schema.string().required().description('自定义的API接口'),  //提供图片查询服务的自定义接口位置
     }),
     Schema.object({}),
   ]),
@@ -128,8 +113,6 @@ export function apply(ctx: Context, config: Config) {
     enabledVip: 'unsigned',  //是否启用VIP接口
     tokenMarket: 'string',  //鉴权令牌
     tokenDaily: 'string',  //身份识别令牌
-    enabledBaizhan: 'unsigned',  //是否启用百战异闻录查询
-    urlAPI: 'string',  //百战查询自定义接口位置
   })
 
   ctx.database.upsert('jx3配置', (row) => [  //将配置录入数据库
@@ -140,8 +123,6 @@ export function apply(ctx: Context, config: Config) {
       enabledVip: config.enabledVip,  //是否启用VIP接口
       tokenMarket: config.tokenMarket,  //鉴权令牌
       tokenDaily: config.tokenDaily,  //身份识别令牌
-      enabledBaizhan: config.enabledBaizhan,  //是否启用百战异闻录查询
-      urlAPI: config.urlAPI,  //百战查询自定义接口位置
     }
   ])
 
@@ -184,10 +165,7 @@ export function apply(ctx: Context, config: Config) {
   transferAdventurePlugin(ctx);  //调用监听中转插件AdventurePlugin
 
   ctx.plugin(freeFunction);  //默认调用免费功能freeFunction
-
-  if (config.enabledBaizhan) {  //如果配置界面开启百战异闻录功能，则调用自定义功能customFunction
-    ctx.plugin(customFunction);
-  }
+  ctx.plugin(jx3boxFunction);  //默认调用jx3box功能jx3boxFunction
 
   if (config.enabledVip) {  //如果配置界面开启VIP接口功能，则调用自定义功能vipFunction
     ctx.plugin(vipFunction);
