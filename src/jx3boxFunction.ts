@@ -57,15 +57,15 @@ export async function apply(ctx: Context) {
           await page.waitForSelector(getJx3boxElement.JX3BOX_Macro_Rank01Pic_Element);  //等待加载门派头像元素
 
           const rank01ElementHandle = await page.$(getJx3boxElement.JX3BOX_Macro_Rank01_Element);  //获取排行榜第一元素
-          const rank01PicElementHandle = await page.$(getJx3boxElement.JX3BOX_Macro_Rank01Pic_Element);  //获取排行榜第一门派头像元素
+          //const rank01PicElementHandle = await page.$(getJx3boxElement.JX3BOX_Macro_Rank01Pic_Element);  //获取排行榜第一门派头像元素
 
           const rankUrl = await page.evaluate(element => element.href, rank01ElementHandle);  //获取排行榜第一包含的链接
           const rankRealUrl = decodeURIComponent(rankUrl);  //解析URL为汉字，链接更短
-          const rankPicUrl = await page.evaluate(element => element.src, rank01PicElementHandle);  //获取排行榜第一包含的图片链接
+          //const rankPicUrl = await page.evaluate(element => element.src, rank01PicElementHandle);  //获取排行榜第一包含的图片链接
 
           await page.close();  //关闭页面
-          const message = `${subtype}宏：\n${rankRealUrl}`
-          return (h('p', h('img', { src: rankPicUrl }), message));
+          const message = `${subtype}：\n${rankRealUrl}`
+          return (h('p', message));
         } else {
           return ('请输入正确心法');
         }

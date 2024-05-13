@@ -1,7 +1,7 @@
 {
   "name": "koishi-plugin-jx3-flyneverride",
   "description": "使用JX3API及魔盒的机器人，详情见主页。新增查询宏的功能",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "contributors": [
     "flyneverride <13645413454@126.com>"
   ],
