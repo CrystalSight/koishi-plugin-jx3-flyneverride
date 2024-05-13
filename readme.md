@@ -6,6 +6,8 @@
 JX3API : https://api.jx3api.com<br>
 魔盒 : https://www.jx3box.com<br><br>
 **v1.3.2**<br>
+新增查询指定心法宏的功能，将返回魔盒宏排行榜首位的链接<br>
+**v1.3.2**<br>
 重写百战指令，现在可以直接从魔盒获取百战地图啦，无需自行额外配置<br>
 **v1.3.1**<br>
 规范ctx.database数据库功能依赖声明<br>

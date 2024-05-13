@@ -44,4 +44,37 @@ export async function apply(ctx: Context) {
       }
     });
 
+  ctx.command('宏 [subtype]', '获取剑三魔盒指定心法宏排行榜第一的链接')  //获取剑三魔盒指定心法宏排行榜第一的链接
+    .usage('获取剑三魔盒指定心法宏排行榜第一的链接')
+    .option('subtype', '指定心法全称')
+    .action(async ({ }, subtype) => {
+      try {
+        if (getJx3boxElement.gameSect.includes(subtype)) {
+          const page = await ctx.puppeteer.page(); //创建页面
+          const pageUrl = `${getJx3boxIndex.JX3BOX_Macro_MAIN_URL}${subtype}`;
+          await page.goto(pageUrl);  //页面前往指定网址
+          await page.waitForSelector(getJx3boxElement.JX3BOX_Macro_Rank01_Element);  //等待加载链接元素
+          await page.waitForSelector(getJx3boxElement.JX3BOX_Macro_Rank01Pic_Element);  //等待加载门派头像元素
+
+          const rank01ElementHandle = await page.$(getJx3boxElement.JX3BOX_Macro_Rank01_Element);  //获取排行榜第一元素
+          const rank01PicElementHandle = await page.$(getJx3boxElement.JX3BOX_Macro_Rank01Pic_Element);  //获取排行榜第一门派头像元素
+
+          const rankUrl = await page.evaluate(element => element.href, rank01ElementHandle);  //获取排行榜第一包含的链接
+          const rankRealUrl = decodeURIComponent(rankUrl);  //解析URL为汉字，链接更短
+          const rankPicUrl = await page.evaluate(element => element.src, rank01PicElementHandle);  //获取排行榜第一包含的图片链接
+
+          await page.close();  //关闭页面
+          const message = `${subtype}宏：\n${rankRealUrl}`
+          return (h('p', h('img', { src: rankPicUrl }), message));
+        } else {
+          return ('请输入正确心法');
+        }
+
+      } catch (error) {
+        console.error(error);
+        return '发生错误，请稍后再试。';
+      }
+
+    })
+
 }
