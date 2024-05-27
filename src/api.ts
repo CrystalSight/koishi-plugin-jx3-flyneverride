@@ -10,6 +10,8 @@ export const JX3_Allnews_API_URL = 'https://api.jx3api.com/data/web/news/allnews
 export const JX3_Announce_API_URL = 'https://api.jx3api.com/data/web/news/announce';//剑三维护公告API
 export const JX3_Saohua_API_URL = 'https://api.jx3api.com/data/saohua/random';//剑三撩人骚话API
 
+export const JX3_toxic_API_URL='https://www.jx3api.com/data/school/toxic';//剑三小药清单API
+
 //剑网三 付费API服务 https://api.jx3api.com/#/?id=vip-api
 export const JX3_Celebrities_vipAPI_URL = 'https://api.jx3api.com/data/active/celebrities';//剑三行侠事件API
 export const JX3_Demon_vipAPI_URL = 'https://api.jx3api.com/data/trade/demon';//剑三金币比例API

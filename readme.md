@@ -4,7 +4,10 @@
 
 使用JX3API及魔盒的机器人，免费及大部分VIP接口施工完成(VIP需自行购买权限) <br>
 JX3API : https://api.jx3api.com<br>
+JX3API新版 : https://www.jx3api.com<br>
 魔盒 : https://www.jx3box.com<br><br>
+**v1.3.5**<br>
+新增查询指定心法推荐小药的功能<br>
 **v1.3.4**<br>
 删除门派图标，因为部分门派会被企鹅屏蔽<br>
 **v1.3.3**<br>

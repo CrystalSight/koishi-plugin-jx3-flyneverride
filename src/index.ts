@@ -1,4 +1,4 @@
-import { Context, Schema,} from 'koishi'
+import { Context, Schema, } from 'koishi'
 // import * as getApi from './api'; //导入剑网三API地址，name:getApi
 import * as freeFunction from './freeFunction';
 import * as jx3boxFunction from './jx3boxFunction';
@@ -13,7 +13,8 @@ export const name = 'jx3-flyneverride'
 export const usage = '该插件可获取剑三部分信息'
 
 export const inject = {
-  required: ['database', 'puppeteer']
+  required: ['database','puppeteer'],
+  optional: []
 }
 
 declare module 'koishi' {  //数据库新建表"Configuration"
