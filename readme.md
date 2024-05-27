@@ -7,7 +7,7 @@ JX3API : https://api.jx3api.com<br>
 JX3API新版 : https://www.jx3api.com<br>
 魔盒 : https://www.jx3box.com<br><br>
 **v1.3.6~v1.3.7**<br>
-修复一些降智小问题
+修复一些降智小问题<br>
 **v1.3.5**<br>
 新增查询指定心法推荐小药的功能<br>
 **v1.3.4**<br>
