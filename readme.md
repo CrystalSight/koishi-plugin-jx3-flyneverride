@@ -2,9 +2,9 @@
 
 [![npm](https://img.shields.io/npm/v/koishi-plugin-jx3-flyneverride?style=flat-square)](https://www.npmjs.com/package/koishi-plugin-jx3-flyneverride)
 
-**该项目已经停止为维护，且短时间内不会重启！！！2024-06-29**<br>
-**该项目已经停止为维护，且短时间内不会重启！！！2024-06-29**<br>
-**该项目已经停止为维护，且短时间内不会重启！！！2024-06-29**<br>
+**该项目已经停止维护，且短时间内不会重启！！！2024-06-29**<br>
+**该项目已经停止维护，且短时间内不会重启！！！2024-06-29**<br>
+**该项目已经停止维护，且短时间内不会重启！！！2024-06-29**<br>
 
 使用JX3API及魔盒的机器人，免费及大部分VIP接口施工完成(VIP需自行购买权限) <br>
 JX3API : https://api.jx3api.com<br>
